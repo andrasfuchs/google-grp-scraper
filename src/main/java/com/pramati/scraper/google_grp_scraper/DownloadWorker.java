@@ -6,6 +6,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
+import org.openqa.selenium.WebDriver;
+
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -21,6 +23,7 @@ public class DownloadWorker implements Runnable {
 
 	private BlockingQueue<String> linksSharedQueueForDownload;
 	private WebClient client;
+	private WebDriver gBrowser;
 	private String downloadDirectory = "Download";
 	private String failureRecoveryDirectory = "Recovery";
 	private String topicDirectory = "Topics";
@@ -31,9 +34,10 @@ public class DownloadWorker implements Runnable {
 
 	public DownloadWorker(
 			BlockingQueue<String> topicLinksSharedQueueForDownload,
-			String groupName) {
+			String groupName, WebDriver gBrowser) {
 		this.linksSharedQueueForDownload = topicLinksSharedQueueForDownload;
 		this.groupName = groupName;
+		this.gBrowser = gBrowser;
 	}
 
 	public void run() {
@@ -50,31 +54,35 @@ public class DownloadWorker implements Runnable {
 				break;
 			}
 			if (linkForDownload != null) {
-				download(linkForDownload);
+				download(linkForDownload, gBrowser);
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private void download(String linkForDownload) {
-
+	private void download(String linkForDownload, WebDriver gBrowser) {
 		WebRequest webReq;
 		String titleOfTopic = "";
 		String contentOfTopic = "";
 		List<HtmlSpan> spanElement = null;
 		List<HtmlDivision> divElement = null;
 		try {
+			java.util.logging.Logger.getLogger("com.gargoylesoftware")
+					.setLevel(java.util.logging.Level.OFF);
 			webReq = new WebRequest(new URL(linkForDownload));
+			gBrowser.navigate().to(linkForDownload);
+			gBrowser.navigate().forward();
 			HtmlPage page = client.getPage(webReq);
-
 			spanElement = (List<HtmlSpan>) page
 					.getByXPath("//span[@id=\"t-t\"]");
 			divElement = (List<HtmlDivision>) page
-					.getByXPath("//div[@class=\"G3J0AAD-nb-P\"]");
+					.getByXPath("//div[@class=\"IVILX2C-b-D\"]");
 
 			if (!spanElement.isEmpty()) {
+
 				HtmlSpan span = (HtmlSpan) spanElement.get(0);
 				titleOfTopic = span.asText();
+				System.out.println(titleOfTopic + " is created");
 				contentOfTopic = "SUBJECT IS :" + titleOfTopic + "\n\n";
 			}
 
@@ -101,7 +109,7 @@ public class DownloadWorker implements Runnable {
 				fileUtil.createFileAndWriteTxt(titleOfTopic, downloadDirectory
 						+ directorySeparator + groupName + directorySeparator
 						+ topicDirectory, contentOfTopic);
-
+				gBrowser.navigate().back();
 				recoveryUtil.maintainRecoveryList(downloadDirectory
 						+ directorySeparator + groupName, linkForDownload);
 			} else {
@@ -115,7 +123,7 @@ public class DownloadWorker implements Runnable {
 	}
 
 	private void createClient() {
-		client = new WebClient(BrowserVersion.FIREFOX_24);
+		client = new WebClient(BrowserVersion.CHROME);
 		client.getOptions().setJavaScriptEnabled(true);
 		client.getOptions().setRedirectEnabled(false);
 		client.getOptions().setThrowExceptionOnScriptError(false);
