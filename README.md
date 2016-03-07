@@ -1,10 +1,14 @@
-google-grp-scraper is a crawler which takes google group URL and no-of-downloader threads in input
+google-grp-scraper is a crawler which takes google group URL, no-of-downloader threads, no-of-topics to be downloaded in input,
 
-i.e. java -jar google-grp-scraper-0.0.1-SNAPSHOT.jar <URL_OF_YOUR_GROUP> <NO_OF_DOWNLOADER_THREADS> 
+where no-of-threads depends on no.of topics exists in that group.
 
-example:- java -jar google-grp-scraper-0.0.1-SNAPSHOT.jar 'https://groups.google.com/forum/#!forum/ibm.software.websphere.application-server' 20
+To run this crawler using eclipse Ide, we need to add arguments before we start it :
 
+Run->Run Configurations->Arguments->program Arguments->Apply->Run.
 
+example:-'https://groups.google.com/forum/#!forum/hisad' 5 10
+
+The extra feature added to current version is downloading only limited topics by specifying the limit.
 
 OUTPUT:- After running above you will get output as below:
 	1) Topics will be downloaded at (Download/<YOUR_GROUP_NAME>/Topics)
