@@ -27,14 +27,16 @@ public class CollectLink {
 	private URL urlOfGrp;
 	private String groupName;
 	private int noOfWorkers;
+	private int noOfTopics;
 	private String downloadDirectory = "Download";
 	private String directorySeparator = "/";
 	private RecoveryUtil recoveryUtil = new RecoveryUtil();
 	private Set<String> recoveredLinks;
 
-	public void init(URL url, int noOfWorker) throws Exception {
+	public void init(URL url, int noOfWorker, int noOfTopics) throws Exception {
 		this.urlOfGrp = url;
 		this.noOfWorkers = noOfWorker;
+		this.noOfTopics = noOfTopics;
 		setGroupName(urlOfGrp);
 	}
 
@@ -80,7 +82,7 @@ public class CollectLink {
 			if (completeUrl != null && completeUrl.contains("topic")) {
 				links.add(completeUrl);
 				noOfLinks++;
-				if (noOfLinks == 10)
+				if (noOfLinks == noOfTopics)
 					break;
 			}
 		}
