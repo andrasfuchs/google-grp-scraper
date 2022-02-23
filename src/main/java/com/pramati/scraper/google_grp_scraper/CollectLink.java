@@ -16,6 +16,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
+import org.openqa.selenium.firefox.FirefoxBinary;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxDriverService;
+import org.openqa.selenium.firefox.GeckoDriverService;
 import org.openqa.selenium.interactions.Actions;
 
 import com.pramati.scraper.util.RecoveryUtil;
@@ -41,12 +45,21 @@ public class CollectLink {
 	}
 
 	public void scrap() throws InterruptedException {
+		// download the driver from https://www.selenium.dev/documentation/webdriver/getting_started/install_drivers/
+//		ChromeDriverService src = new ChromeDriverService.Builder()
+//				.usingDriverExecutable(
+//						new File("c:\\Work\\google-grp-scraper\\drivers\\chromedriver.exe"))
+//				.usingAnyFreePort().build();
+//		WebDriver groupBrowser = new ChromeDriver(src);
 
-		ChromeDriverService src = new ChromeDriverService.Builder()
+		FirefoxBinary firefoxBinary = new FirefoxBinary();
+		GeckoDriverService src = new GeckoDriverService.Builder()
 				.usingDriverExecutable(
-						new File("/home/sanjeevn/Desktop/chromedriver"))
+						new File("c:\\Work\\google-grp-scraper\\drivers\\geckodriver.exe"))
+				.usingFirefoxBinary(firefoxBinary)
 				.usingAnyFreePort().build();
-		WebDriver groupBrowser = new ChromeDriver(src);
+		WebDriver groupBrowser = new FirefoxDriver(src);
+
 		this.startCrawl(groupBrowser);
 		this.startDownloader(groupBrowser);
 
@@ -97,11 +110,11 @@ public class CollectLink {
 	}
 
 	private void setGroupName(URL urlOfGrp) throws Exception {
-		String grpNameRegex = "https://groups.google.com/forum/#(.*?)forum/(.*?)";
+		String grpNameRegex = "https://groups.google.com/g/(.*?)";
 		Pattern pattern = Pattern.compile(grpNameRegex);
 		Matcher matcher = pattern.matcher(urlOfGrp.toString());
 		if (matcher.matches()) {
-			groupName = matcher.group(2);
+			groupName = matcher.group(1);
 		} else {
 			throw new Exception("INVALID GROUP URL");
 		}
